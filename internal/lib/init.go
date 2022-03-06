@@ -29,16 +29,20 @@ func Init() {
 		panic(err)
 	}
 
+	err = os.Mkdir(".husky/hooks", 0755)
+	if err != nil {
+		panic(err)
+	}
+
 	// create default pre-commit hook
-	file, err := os.Create(".husky/pre-commit")
+	file, err := os.Create(".husky/hooks/pre-commit")
 	if err != nil {
 		panic(err)
 	}
 
 	defer file.Close()
 
-	_, err = file.WriteString(`#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"`)
+	_, err = file.WriteString(`#!/bin/sh`)
 
 	if err != nil {
 		panic(err)
