@@ -24,7 +24,7 @@ Inspired from the [husky.js](https://github.com/typicode/husky)
 ### Installation
 
 ```bash
-go get -u github.com/automation-co/husky
+go install github.com/automation-co/husky@latest
 ```
 
 ### Getting Started
