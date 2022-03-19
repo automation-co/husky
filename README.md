@@ -23,7 +23,7 @@ Inspired from the [husky.js](https://github.com/typicode/husky)
 
 ### Installation
 
-```bash
+```
 go install github.com/automation-co/husky@latest
 ```
 
