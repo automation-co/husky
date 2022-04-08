@@ -56,6 +56,12 @@ If you have made any other changes in the hooks you can appply them by using `$ 
 
 ---
 
+## Blogs and Resources
+- [ Get Started with Husky for go ](https://dev.to/devnull03/get-started-with-husky-for-go-31pa)
+- [ Git Hooks for your Golang project ](https://dev.to/aarushgoyal/git-hooks-for-your-golang-project-1168)
+
+---
+
 ## Get Familiar with Git Hooks
 
 Learn more about git hooks from these useful resources:
