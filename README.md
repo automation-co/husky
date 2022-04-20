@@ -65,9 +65,9 @@ If you have made any other changes in the hooks you can appply them by using `$ 
 ## Get Familiar with Git Hooks
 
 Learn more about git hooks from these useful resources:
-- https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
-- https://www.atlassian.com/git/tutorials/git-hooks
-- https://medium.com/@f3igao/get-started-with-git-hooks-5a489725c639
+- [ Customizing Git - Git Hooks ](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)
+- [ Atlassian Blog on Git Hooks ](https://www.atlassian.com/git/tutorials/git-hooks)
+- [ Fei's Blog | Get Started with Git Hooks ](https://medium.com/@f3igao/get-started-with-git-hooks-5a489725c639)
 
 ---
 
