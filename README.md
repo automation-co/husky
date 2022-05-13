@@ -11,6 +11,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/automation-co/husky)](https://goreportcard.com/report/github.com/automation-co/husky)
 ![GitHub](https://img.shields.io/github/license/automation-co/husky)
 ![GitHub issues](https://img.shields.io/github/issues/automation-co/husky)
+
  </div>
 
 <!-- --- -->
@@ -18,6 +19,11 @@
 **Make githooks easy!**
 
 Inspired from the [husky.js](https://github.com/typicode/husky)
+
+
+---
+<a href="https://www.producthunt.com/posts/husky-4?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-husky&#0045;4" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=346044&theme=light" align="right" alt="Husky - Git&#0032;hooks&#0032;made&#0032;easy&#0032;on&#0032;go | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 
 ## Docs
 
