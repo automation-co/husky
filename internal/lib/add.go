@@ -22,6 +22,7 @@ func Add(hook string, cmd string) {
 		"applypatch-msg",
 		"commit-msg",
 		"fsmonitor-watchman",
+		"post-checkout",
 		"post-update",
 		"pre-applypatch",
 		"pre-commit",
