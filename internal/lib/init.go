@@ -1,17 +1,18 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
 
-func Init() {
+func Init() error {
 
 	// check if .git exists
 	_, err := os.Stat(".git")
 	if os.IsNotExist(err) {
 		fmt.Println("git not initialized")
-		return
+		return errors.New("git not initialized")
 	}
 
 	// check if .husky exists
@@ -19,7 +20,7 @@ func Init() {
 
 	if err == nil {
 		fmt.Println(".husky already exist.")
-		return
+		return errors.New(".husky already exist")
 	}
 
 	// if not, create .husky
@@ -49,5 +50,10 @@ func Init() {
 	}
 
 	// add hooks to .git/hooks
-	Install()
+	err = Install()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
