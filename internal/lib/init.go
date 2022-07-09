@@ -17,8 +17,7 @@ func Init() {
 	// check if .husky exists
 	_, err = os.Stat(".husky")
 
-	if os.IsNotExist(err) {
-	} else {
+	if err == nil {
 		fmt.Println(".husky already exist.")
 		return
 	}
