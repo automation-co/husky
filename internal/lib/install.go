@@ -1,19 +1,20 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 )
 
-func Install() {
+func Install() error {
 	fmt.Println("Installing hooks")
 
 	// check if .git exists
 	_, err := os.Stat(".git")
 	if os.IsNotExist(err) {
 		fmt.Println("git not initialized")
-		return
+		return errors.New("git not initialized")
 	}
 
 	// check if .husky exists
@@ -21,7 +22,7 @@ func Install() {
 
 	if os.IsNotExist(err) {
 		fmt.Println(".husky not initialized.")
-		return
+		return errors.New(".husky not initialized")
 	}
 
 	// check if .husky/hooks exists
@@ -29,7 +30,7 @@ func Install() {
 
 	if os.IsNotExist(err) {
 		fmt.Println("no hooks found")
-		return
+		return errors.New("no hooks found")
 	}
 
 	root := ".husky/hooks"
@@ -80,4 +81,6 @@ func Install() {
 
 	}
 	fmt.Println("Hooks installed")
+
+	return nil
 }

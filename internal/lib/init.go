@@ -1,26 +1,26 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
 
-func Init() {
+func Init() error {
 
 	// check if .git exists
 	_, err := os.Stat(".git")
 	if os.IsNotExist(err) {
 		fmt.Println("git not initialized")
-		return
+		return errors.New("git not initialized")
 	}
 
 	// check if .husky exists
 	_, err = os.Stat(".husky")
 
-	if os.IsNotExist(err) {
-	} else {
+	if err == nil {
 		fmt.Println(".husky already exist.")
-		return
+		return errors.New(".husky already exist")
 	}
 
 	// if not, create .husky
@@ -40,6 +40,7 @@ func Init() {
 		panic(err)
 	}
 
+	//goland:noinspection GoUnhandledErrorResult
 	defer file.Close()
 
 	_, err = file.WriteString(`#!/bin/sh`)
@@ -49,5 +50,10 @@ func Init() {
 	}
 
 	// add hooks to .git/hooks
-	Install()
+	err = Install()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

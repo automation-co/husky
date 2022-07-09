@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -15,7 +16,7 @@ func contains(s []string, str string) bool {
 	return false
 }
 
-func Add(hook string, cmd string) {
+func Add(hook string, cmd string) error {
 
 	// check if hook name is valid
 	validHooks := []string{
@@ -36,14 +37,14 @@ func Add(hook string, cmd string) {
 	}
 	if !contains(validHooks, hook) {
 		fmt.Println("Invalid hook name.")
-		return
+		return errors.New("invalid hook name")
 	}
 
 	// check if .git exists
 	_, err := os.Stat(".git")
 	if os.IsNotExist(err) {
 		fmt.Println("git not initialized")
-		return
+		return errors.New("git not initialized")
 	}
 
 	// check if .husky exists
@@ -51,7 +52,7 @@ func Add(hook string, cmd string) {
 
 	if os.IsNotExist(err) {
 		fmt.Println(".husky not initialized.")
-		return
+		return errors.New(".husky not initialized")
 	}
 
 	// check if .husky/hooks exists
@@ -75,6 +76,7 @@ func Add(hook string, cmd string) {
 		panic(err)
 	}
 
+	//goland:noinspection GoUnhandledErrorResult
 	defer file.Close()
 
 	cmd = "#!/bin/sh\n" + cmd
@@ -83,4 +85,5 @@ func Add(hook string, cmd string) {
 		panic(err)
 	}
 
+	return nil
 }
