@@ -75,6 +75,7 @@ func Add(hook string, cmd string) {
 		panic(err)
 	}
 
+	//goland:noinspection GoUnhandledErrorResult
 	defer file.Close()
 
 	cmd = "#!/bin/sh\n" + cmd

@@ -40,6 +40,7 @@ func Init() {
 		panic(err)
 	}
 
+	//goland:noinspection GoUnhandledErrorResult
 	defer file.Close()
 
 	_, err = file.WriteString(`#!/bin/sh`)
