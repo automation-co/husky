@@ -38,6 +38,11 @@ func contains(s []string, str string) bool {
 	return false
 }
 
+// isValidHook will call the contains function internally.
+func isValidHook(hook string) bool {
+	return contains(validHooks, hook)
+}
+
 // gitExists will return true if the comman is executed under .git directory
 // TODO: support recursive find .git directory till home
 func gitExists() (bool, error) {

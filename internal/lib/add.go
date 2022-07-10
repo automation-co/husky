@@ -8,7 +8,7 @@ import (
 
 func Add(hook string, cmd string) error {
 	// validate hooks
-	if !contains(validHooks, hook) {
+	if !isValidHook(hook) {
 		return errors.New("invalid hook name")
 	}
 
