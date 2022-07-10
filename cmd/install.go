@@ -10,7 +10,9 @@ var installCmd = &cobra.Command{
 	Short: "Install hooks",
 	Long:  `Install hooks from the .hooks folder`,
 	Run: func(cmd *cobra.Command, args []string) {
-		lib.Install()
+		if err := lib.Install(); err != nil {
+			panic(err)
+		}
 	},
 }
 
