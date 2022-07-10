@@ -19,8 +19,13 @@ echo 'woof'
 		hook := args[0]
 		cmdStr := args[1]
 
-		lib.Add(hook, cmdStr)
-		lib.Install()
+		if err := lib.Add(hook, cmdStr); err != nil {
+			panic(err)
+		}
+
+		if err := lib.Install(); err != nil {
+			panic(err)
+		}
 	},
 }
 
