@@ -36,14 +36,12 @@ func Add(hook string, cmd string) error {
 		"push-to-checkout",
 	}
 	if !contains(validHooks, hook) {
-		fmt.Println("Invalid hook name.")
 		return errors.New("invalid hook name")
 	}
 
 	// check if .git exists
 	_, err := os.Stat(".git")
 	if os.IsNotExist(err) {
-		fmt.Println("git not initialized")
 		return errors.New("git not initialized")
 	}
 
@@ -51,7 +49,6 @@ func Add(hook string, cmd string) error {
 	_, err = os.Stat(".husky")
 
 	if os.IsNotExist(err) {
-		fmt.Println(".husky not initialized.")
 		return errors.New(".husky not initialized")
 	}
 
@@ -64,7 +61,7 @@ func Add(hook string, cmd string) error {
 		// create .husky/hooks
 		err = os.Mkdir(".husky/hooks", 0755)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		fmt.Println("created .husky/hooks")
@@ -73,7 +70,7 @@ func Add(hook string, cmd string) error {
 	// create hook
 	file, err := os.Create(".husky/hooks/" + hook)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	//goland:noinspection GoUnhandledErrorResult
@@ -82,7 +79,7 @@ func Add(hook string, cmd string) error {
 	cmd = "#!/bin/sh\n" + cmd
 	_, err = file.WriteString(cmd)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	return nil

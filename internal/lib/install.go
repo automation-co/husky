@@ -13,7 +13,6 @@ func Install() error {
 	// check if .git exists
 	_, err := os.Stat(".git")
 	if os.IsNotExist(err) {
-		fmt.Println("git not initialized")
 		return errors.New("git not initialized")
 	}
 
@@ -21,7 +20,6 @@ func Install() error {
 	_, err = os.Stat(".husky")
 
 	if os.IsNotExist(err) {
-		fmt.Println(".husky not initialized.")
 		return errors.New(".husky not initialized")
 	}
 
@@ -29,7 +27,6 @@ func Install() error {
 	_, err = os.Stat(".husky/hooks")
 
 	if os.IsNotExist(err) {
-		fmt.Println("no hooks found")
 		return errors.New("no hooks found")
 	}
 
@@ -39,13 +36,13 @@ func Install() error {
 	// delete all files in .git/hooks
 	err = os.RemoveAll(gitDir)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// create .git/hooks
 	err = os.Mkdir(gitDir, 0755)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// copy all files in .husky/hooks to .git/hooks
@@ -56,7 +53,7 @@ func Install() error {
 			return nil
 		})
 	if err != nil {
-		panic(err)
+		return err
 	}
 	for _, hook := range hooks {
 
@@ -70,13 +67,13 @@ func Install() error {
 		// copy file to .git/hooks
 		err = os.Link(hook, filepath.Join(gitDir, filepath.Base(hook)))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// make file executable
 		err = os.Chmod(filepath.Join(gitDir, filepath.Base(hook)), 0755)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 	}
