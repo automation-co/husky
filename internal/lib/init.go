@@ -6,22 +6,22 @@ import (
 )
 
 func Init() error {
-
 	// check if .git exists
-	_, err := os.Stat(".git")
-	if os.IsNotExist(err) {
+	if isExists, err := gitExists(); err == nil && !isExists {
 		return errors.New("git not initialized")
+	} else if err != nil {
+		return err
 	}
 
 	// check if .husky exists
-	_, err = os.Stat(".husky")
-
-	if err == nil {
+	if isExists, err := huskyExists(); err == nil && isExists {
 		return errors.New(".husky already exist")
+	} else if err != nil {
+		return err
 	}
 
 	// if not, create .husky
-	err = os.Mkdir(".husky", 0755)
+	err := os.Mkdir(".husky", 0755)
 	if err != nil {
 		return err
 	}

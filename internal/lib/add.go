@@ -6,54 +6,28 @@ import (
 	"os"
 )
 
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
-	}
-
-	return false
-}
-
 func Add(hook string, cmd string) error {
-
-	// check if hook name is valid
-	validHooks := []string{
-		"applypatch-msg",
-		"commit-msg",
-		"fsmonitor-watchman",
-		"post-checkout",
-		"post-update",
-		"pre-applypatch",
-		"pre-commit",
-		"pre-push",
-		"pre-rebase",
-		"prepare-commit-msg",
-		"update",
-		"pre-receive",
-		"pre-merge-commit",
-		"push-to-checkout",
-	}
+	// validate hooks
 	if !contains(validHooks, hook) {
 		return errors.New("invalid hook name")
 	}
 
 	// check if .git exists
-	_, err := os.Stat(".git")
-	if os.IsNotExist(err) {
+	if isExists, err := gitExists(); err == nil && !isExists {
 		return errors.New("git not initialized")
+	} else if err == nil {
+		return err
 	}
 
 	// check if .husky exists
-	_, err = os.Stat(".husky")
-
-	if os.IsNotExist(err) {
+	if isExists, err := huskyExists(); err == nil && !isExists {
 		return errors.New(".husky not initialized")
+	} else if err != nil {
+		return err
 	}
 
 	// check if .husky/hooks exists
-	_, err = os.Stat(".husky/hooks")
+	_, err := os.Stat(".husky/hooks")
 
 	if os.IsNotExist(err) {
 		fmt.Println("no pre-existing hooks found")
