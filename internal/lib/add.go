@@ -15,7 +15,7 @@ func Add(hook string, cmd string) error {
 	// check if .git exists
 	if isExists, err := gitExists(); err == nil && !isExists {
 		return errors.New("git not initialized")
-	} else if err == nil {
+	} else if err != nil {
 		return err
 	}
 
