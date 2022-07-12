@@ -12,7 +12,7 @@ on:
       - main
 
 jobs:
-  unit_testing:
+  testing:
     name: "Unit Testing"
     runs-on: "${{ matrix.os }}"
     steps:
@@ -21,12 +21,13 @@ jobs:
       - name: "Set up Go"
         uses: actions/setup-go@v2
         with:
-          cache: true
-          check-latest: true
           go-version: "${{ matrix.golang }}"
       - name: "Perform Unit Test"
         run: "go test -v ./..."
-
+      - name: "Build and Install"
+        run: |
+          go build -v ./...
+          go install -v ./...
     strategy:
       matrix:
         golang:
