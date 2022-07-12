@@ -17,3 +17,6 @@
 go.work
 
 husky
+
+# Goland
+.idea
