@@ -14,8 +14,10 @@ import (
 
 // global error message declration block
 const (
-	nilErrorMsg            = "method has return nil error"
-	invildContentsErrorMsg = "invalid file contents"
+	nilErrorMsg             = "method has return nil error"
+	invalidContentsErrorMsg = "invalid file contents"
+	expectedDirErrorMsg     = "expected the path to be a directory"
+	expectedFileErrorMsg    = "expected the path to be a file"
 )
 
 // getRepoPath is a testing utility function to create a random directory and return its path
@@ -151,6 +153,6 @@ func TestAdd(t *testing.T) {
 	if content, err := ioutil.ReadFile(preCommit); err != nil {
 		t.Error(err)
 	} else if "#!/bin/sh\nwhoami" != string(content) {
-		t.Error(invildContentsErrorMsg)
+		t.Error(invalidContentsErrorMsg)
 	}
 }
