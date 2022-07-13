@@ -20,13 +20,8 @@ func Init() error {
 		return err
 	}
 
-	// if not, create .husky
-	err := os.Mkdir(".husky", 0755)
-	if err != nil {
-		return err
-	}
-
-	err = os.Mkdir(".husky/hooks", 0755)
+	// if not, create .husky/hooks
+	err := os.MkdirAll(getHuskyHooksDir(true), 0755)
 	if err != nil {
 		return err
 	}
