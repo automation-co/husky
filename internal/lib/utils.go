@@ -2,6 +2,7 @@ package lib
 
 import (
 	"os"
+	"path"
 )
 
 // git hooks currently supported
@@ -64,4 +65,24 @@ func huskyExists() (bool, error) {
 	}
 
 	return true, nil
+}
+
+// getHuskyHooksDir will return the relative or absolute .husky hooks directory
+func getHuskyHooksDir(relative bool) string {
+	if relative {
+		return path.Join(".husky", "hooks")
+	}
+
+	cwd, _ := os.Getwd()
+	return path.Join(cwd, ".husky", "hooks")
+}
+
+// getGitHooksDir will return the relative or absolute .git hooks directory
+func getGitHooksDir(relative bool) string {
+	if relative {
+		return path.Join(".git", "hooks")
+	}
+
+	cwd, _ := os.Getwd()
+	return path.Join(cwd, ".git", "hooks")
 }
