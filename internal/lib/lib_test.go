@@ -251,3 +251,124 @@ func TestInit(t *testing.T) {
 		t.Error(invalidContentsErrorMsg)
 	}
 }
+
+// TestInstallNoGit validates that the lib.Install() will return error when git is not initialized
+func TestInstallNoGit(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	repoPath, err := getRepoPath()
+	defer os.RemoveAll(repoPath)
+	defer os.Chdir(currentDir)
+
+	if err != nil {
+		t.Error(err)
+	} else if err := os.Chdir(repoPath); err != nil {
+		t.Error(err)
+	}
+
+	err = huskyLib.Install()
+	if err == nil {
+		t.Error(nilErrorMsg)
+	} else if err.Error() != "git not initialized" {
+		t.Error(err)
+	}
+
+	if err := os.Chdir(currentDir); err != nil {
+		t.Error(err)
+	}
+	if err := os.RemoveAll(repoPath); err != nil {
+		t.Error(err)
+	}
+}
+
+// TestInstallNoHusky validates if the lib.Install() returns error if husky is not initialized
+func TestInstallNoHusky(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	repoPath, err := getRepoPath()
+	defer os.RemoveAll(repoPath)
+	defer os.Chdir(currentDir)
+
+	if err != nil {
+		t.Error(err)
+	}
+	setupRepo(repoPath)
+
+	if err := os.Chdir(repoPath); err != nil {
+		t.Error(err)
+	}
+
+	if err := huskyLib.Install(); err == nil {
+		t.Error(nilErrorMsg)
+	} else if err.Error() != ".husky not initialized" {
+		t.Error(err)
+	}
+}
+
+// TestInstallNoHuskyHooks validates if lib.Install() returns error when .husky/hooks directory doesn't exists
+func TestInstallNoHuskyHooks(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	repoPath, err := getRepoPath()
+	defer os.RemoveAll(repoPath)
+	defer os.Chdir(currentDir)
+
+	if err != nil {
+		t.Error(err)
+	}
+	setupRepo(repoPath)
+
+	if err := os.Mkdir(path.Join(repoPath, ".husky"), 0755); err != nil {
+		t.Error(err)
+	}
+
+	if err := os.Chdir(repoPath); err != nil {
+		t.Error(err)
+	}
+
+	if err := huskyLib.Install(); err == nil {
+		t.Error(nilErrorMsg)
+	} else if err.Error() != "no hooks found" {
+		t.Error(err)
+	}
+}
+
+// TestInstall validates everything lib.Install() has done is correct
+func TestInstall(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	repoPath, err := getRepoPath()
+	//defer os.RemoveAll(repoPath)
+	defer os.Chdir(currentDir)
+	if err != nil {
+		t.Error(err)
+	}
+	setupRepo(repoPath)
+
+	if err := os.MkdirAll(path.Join(repoPath, ".husky", "hooks"), 0755); err != nil {
+		t.Error(err)
+	}
+
+	gibbrish := randomString(32)
+	var file *os.File
+	if file, err = os.Create(path.Join(repoPath, ".husky", "hooks", "pre-commit")); err != nil {
+		t.Error(err)
+	} else if _, err := file.WriteString(gibbrish); err != nil {
+		t.Error(err)
+	}
+	file.Close()
+
+	if err := os.Chdir(repoPath); err != nil {
+		t.Error(err)
+	}
+
+	if err := huskyLib.Install(); err != nil {
+		t.Error(err)
+	}
+
+	if file, err := os.Stat(path.Join(".git", "hooks", "pre-commit")); err != nil && !os.IsExist(err) {
+		t.Error(err)
+	} else if file.IsDir() {
+		t.Error(expectedDirErrorMsg)
+	} else if content, err := ioutil.ReadFile(path.Join(".git", "hooks", "pre-commit")); err != nil {
+		t.Error(err)
+	} else if string(content) != gibbrish {
+		t.Error(invalidContentsErrorMsg)
+	}
+}
