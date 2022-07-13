@@ -3,6 +3,7 @@ package lib
 import (
 	"errors"
 	"os"
+	"path"
 )
 
 func Init() error {
@@ -27,7 +28,7 @@ func Init() error {
 	}
 
 	// create default pre-commit hook
-	file, err := os.Create(".husky/hooks/pre-commit")
+	file, err := os.Create(path.Join(getHuskyHooksDir(true), "pre-commit"))
 	if err != nil {
 		return err
 	}
