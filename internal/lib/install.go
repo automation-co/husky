@@ -24,7 +24,7 @@ func Install() error {
 		return err
 	}
 
-	gitHooksDir, huskyHooksDir := getGitHooksDir(true), getGitHooksDir(true)
+	gitHooksDir, huskyHooksDir := getGitHooksDir(true), getHuskyHooksDir(true)
 	// check if .husky/hooks exists
 	_, err := os.Stat(huskyHooksDir)
 	if os.IsNotExist(err) {
