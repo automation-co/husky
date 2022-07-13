@@ -156,3 +156,96 @@ func TestAdd(t *testing.T) {
 		t.Error(invalidContentsErrorMsg)
 	}
 }
+
+// TestInitNoGit validates that the lib.Init() will return error when git is not initialized
+func TestInitNoGit(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	repoPath, err := getRepoPath()
+	defer os.RemoveAll(repoPath)
+	defer os.Chdir(currentDir)
+
+	if err != nil {
+		t.Error(err)
+	} else if err := os.Chdir(repoPath); err != nil {
+		t.Error(err)
+	}
+
+	err = huskyLib.Init()
+	if err == nil {
+		t.Error(nilErrorMsg)
+	} else if err.Error() != "git not initialized" {
+		t.Error(err)
+	}
+
+	if err := os.Chdir(currentDir); err != nil {
+		t.Error(err)
+	}
+	if err := os.RemoveAll(repoPath); err != nil {
+		t.Error(err)
+	}
+}
+
+// TestAddNoHusky validates if the lib.Add() returns error if husky is not initialized
+func TestInitHuskyExists(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	repoPath, err := getRepoPath()
+	defer os.RemoveAll(repoPath)
+	defer os.Chdir(currentDir)
+
+	if err != nil {
+		t.Error(err)
+	}
+	setupRepo(repoPath)
+
+	if err := os.Mkdir(path.Join(repoPath, ".husky"), 0755); err != nil {
+		t.Error(err)
+	}
+
+	if err := os.Chdir(repoPath); err != nil {
+		t.Error(err)
+	}
+
+	if err := huskyLib.Init(); err == nil {
+		t.Error(nilErrorMsg)
+	} else if err.Error() != ".husky already exist" {
+		t.Error(err)
+	}
+}
+
+func TestInit(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	repoPath, err := getRepoPath()
+	defer os.RemoveAll(repoPath)
+	defer os.Chdir(currentDir)
+
+	if err != nil {
+		t.Error(err)
+	}
+	setupRepo(repoPath)
+
+	if err := os.Chdir(repoPath); err != nil {
+		t.Error(err)
+	}
+
+	if err := huskyLib.Init(); err != nil {
+		t.Error(err)
+	}
+
+	if stat, err := os.Stat(path.Join(repoPath, ".husky", "hooks")); err != nil && !os.IsExist(err) {
+		t.Error(err)
+	} else if !stat.IsDir() {
+		t.Error(expectedDirErrorMsg)
+	}
+
+	if stat, err := os.Stat(path.Join(repoPath, ".husky", "hooks", "pre-commit")); err != nil && !os.IsExist(err) {
+		t.Error(err)
+	} else if stat.IsDir() {
+		t.Error(expectedFileErrorMsg)
+	}
+
+	if content, err := ioutil.ReadFile(path.Join(repoPath, ".husky", "hooks", "pre-commit")); err != nil {
+		t.Error(err)
+	} else if "#!/bin/sh" != string(content) {
+		t.Error(invalidContentsErrorMsg)
+	}
+}
