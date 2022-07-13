@@ -4,11 +4,6 @@ import (
 	"os"
 )
 
-const (
-	huskyHooksDir = ".husky/hooks"
-	gitHooksDir   = ".git/hooks"
-)
-
 // git hooks currently supported
 var validHooks = []string{
 	"applypatch-msg",
