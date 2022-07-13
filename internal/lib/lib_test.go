@@ -212,6 +212,8 @@ func TestInitHuskyExists(t *testing.T) {
 	}
 }
 
+// TestInit validates if the lib.Init() function runs accurately or not.
+// It will skip the testing of the lib.Install() function in the end.
 func TestInit(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	repoPath, err := getRepoPath()
