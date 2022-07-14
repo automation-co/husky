@@ -1,24 +1,41 @@
 name: Go
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  testing:
+    name: "Unit Testing"
+    runs-on: "${{ matrix.os }}"
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Go
+      - name: "Clone repository"
+        uses: actions/checkout@v2
+      - name: "Set up Go"
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17
-
-      - name: Build
-        run: go build -v ./...
-
-      - name: Test
-        run: go test -v ./...
+          go-version: "${{ matrix.golang }}"
+      - name: "Perform Unit Test"
+        run: "go test -v ./..."
+      - name: "Build and Install"
+        run: |
+          go build -v ./...
+          go install -v ./...
+    strategy:
+      matrix:
+        golang:
+          - 1.15
+          - 1.16
+          - 1.17
+          - 1.18
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest

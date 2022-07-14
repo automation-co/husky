@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 )
 
 func Add(hook string, cmd string) error {
@@ -15,7 +16,7 @@ func Add(hook string, cmd string) error {
 	// check if .git exists
 	if isExists, err := gitExists(); err == nil && !isExists {
 		return errors.New("git not initialized")
-	} else if err == nil {
+	} else if err != nil {
 		return err
 	}
 
@@ -27,13 +28,13 @@ func Add(hook string, cmd string) error {
 	}
 
 	// check if .husky/hooks exists
-	_, err := os.Stat(".husky/hooks")
-
+	_, err := os.Stat(getHuskyHooksDir(true))
+	fmt.Println(err)
 	if os.IsNotExist(err) {
 		fmt.Println("no pre-existing hooks found")
 
 		// create .husky/hooks
-		err = os.Mkdir(".husky/hooks", 0755)
+		err = os.MkdirAll(getHuskyHooksDir(true), 0755)
 		if err != nil {
 			return err
 		}
@@ -42,7 +43,7 @@ func Add(hook string, cmd string) error {
 	}
 
 	// create hook
-	file, err := os.Create(".husky/hooks/" + hook)
+	file, err := os.Create(path.Join(getHuskyHooksDir(true), hook))
 	if err != nil {
 		return err
 	}
