@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 )
 
+// Install command will iterate the files from .husky/hooks create the hardlinks into .git/hooks and chmod to 0755 permission.
+// The function intend to fail in case .git or .husky directory doesn't exist.
 func Install() error {
 	fmt.Println("Installing hooks")
 
