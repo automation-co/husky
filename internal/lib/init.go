@@ -6,6 +6,8 @@ import (
 	"path"
 )
 
+// Init command will set up the .husky directory as sibling of .git directory if not exists install pre-commit hook by default
+// If .husky exists, it will remove all the files from .git/hooks directory and copy from .husky directory.
 func Init() error {
 	// check if .git exists
 	if isExists, err := gitExists(); err == nil && !isExists {
