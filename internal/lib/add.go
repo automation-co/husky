@@ -7,6 +7,8 @@ import (
 	"path"
 )
 
+// Add command will create the file from hook value into .husky/hooks directory. The cmd appended to shebang string and
+// written in the file .husky/hooks/<hook>. The function intend to fail if the git hook name is invalid.
 func Add(hook string, cmd string) error {
 	// validate hooks
 	if !isValidHook(hook) {
