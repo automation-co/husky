@@ -11,7 +11,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/automation-co/husky)](https://goreportcard.com/report/github.com/automation-co/husky)
 ![GitHub](https://img.shields.io/github/license/automation-co/husky)
 ![GitHub issues](https://img.shields.io/github/issues/automation-co/husky)
- [![Discord](https://img.shields.io/discord/973543658353745920.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/Z3Dh7PnG4q)
 
  </div>
 
