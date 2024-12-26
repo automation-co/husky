@@ -21,6 +21,7 @@ var validHooks = []string{
 	"pre-receive",
 	"pre-merge-commit",
 	"push-to-checkout",
+	"post-commit",
 }
 
 // contains will return true if str exists in s
