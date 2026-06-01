@@ -1,8 +1,10 @@
 package lib
 
 import (
-	"os"
-	"path"
+	"fmt"
+	"os/exec"
+	"path/filepath"
+	"strings"
 )
 
 // git hooks currently supported
@@ -39,50 +41,44 @@ func isValidHook(hook string) bool {
 	return contains(validHooks, hook)
 }
 
-// gitExists will return true if the comman is executed under .git directory
-// TODO: support recursive find .git directory till home
-func gitExists() (bool, error) {
-	// check if .git exists
-	_, err := os.Stat(".git")
-	if os.IsNotExist(err) {
-		return false, nil
-	} else if err != nil {
-		return false, err
+// renderWorktreeRoot returns the absolute path of the top-level directory of the
+// current git working tree. In plain vanilla repository clones with only one
+// worktree, this is the repository root directory. In clones with multiple linked
+// worktrees, this is the linked worktree's own root, not the main repository's working
+// tree. renderWorktreeRoot assumes to be called from inside the worktree.
+func renderWorktreeRoot() (string, error) {
+	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return "", fmt.Errorf("this does not seem to be a git repository, make sure to call this from within the repository - or from within a worktree if you are using worktrees; error: %v", err)
 	}
-
-	return true, nil
+	return strings.TrimSpace(string(out)), nil
 }
 
-// huskyExists will return true if exists, otherwise false
-// TODO: support recursive find .husky directory till home
-func huskyExists() (bool, error) {
-	_, err := os.Stat(".husky")
-
-	if os.IsNotExist(err) {
-		return false, nil
-	} else if err != nil {
-		return false, err
+// renderGitHooksDir returns the absolute path to the hooks directory git will
+// actually execute from. Honors linked worktrees (→ shared common dir),
+// submodules, and core.hooksPath, because `git rev-parse --git-path hooks`
+// does.
+func renderGitHooksDir(worktreeRoot string) (string, exec.Cmd, error) {
+	cmd := exec.Command("git", "rev-parse", "--git-path", "hooks")
+	cmd.Dir = worktreeRoot
+	out, err := cmd.Output()
+	if err != nil {
+		return "", *cmd, err
 	}
-
-	return true, nil
+	p := strings.TrimSpace(string(out))
+	if !filepath.IsAbs(p) {
+		p = filepath.Join(worktreeRoot, p)
+	}
+	return p, *cmd, nil
 }
 
-// getHuskyHooksDir will return the relative or absolute .husky hooks directory
-func getHuskyHooksDir(relative bool) string {
-	if relative {
-		return path.Join(".husky", "hooks")
-	}
-
-	cwd, _ := os.Getwd()
-	return path.Join(cwd, ".husky", "hooks")
+// renderHuskyDir returns the absolute path to the .husky directory inside the
+// worktree root directory worktreeRoot.
+func renderHuskyDir(worktreeRoot string) string {
+	return filepath.Join(worktreeRoot, ".husky")
 }
 
-// getGitHooksDir will return the relative or absolute .git hooks directory
-func getGitHooksDir(relative bool) string {
-	if relative {
-		return path.Join(".git", "hooks")
-	}
-
-	cwd, _ := os.Getwd()
-	return path.Join(cwd, ".git", "hooks")
+// renderHuskyHooksDir returns the absolute path to .husky/hooks inside worktreeRoot.
+func renderHuskyHooksDir(worktreeRoot string) string {
+	return filepath.Join(renderHuskyDir(worktreeRoot), "hooks")
 }

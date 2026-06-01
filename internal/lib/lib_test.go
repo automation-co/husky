@@ -1,7 +1,6 @@
 package lib_test
 
 import (
-	huskyLib "github.com/automation-co/husky/internal/lib"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -10,11 +9,13 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	huskyLib "github.com/automation-co/husky/internal/lib"
 )
 
 // global error message declration block
 const (
-	nilErrorMsg             = "method has return nil error"
+	nilErrorMsg             = "method has returned nil error"
 	invalidContentsErrorMsg = "invalid file contents"
 	expectedDirErrorMsg     = "expected the path to be a directory"
 	expectedFileErrorMsg    = "expected the path to be a file"
@@ -86,7 +87,7 @@ func TestAddNoGit(t *testing.T) {
 	err = huskyLib.Add("pre-commit", "whoami")
 	if err == nil {
 		t.Error(nilErrorMsg)
-	} else if err.Error() != "git not initialized" {
+	} else if !strings.HasPrefix(err.Error(), "this does not seem to be a git repository") {
 		t.Error(err)
 	}
 
@@ -116,7 +117,7 @@ func TestAddNoHusky(t *testing.T) {
 
 	if err := huskyLib.Add("pre-commit", "whoami"); err == nil {
 		t.Error(nilErrorMsg)
-	} else if err.Error() != ".husky not initialized" {
+	} else if !strings.Contains(err.Error(), ".husky does not exist, run \"husky init\" and try again") {
 		t.Error(err)
 	}
 }
@@ -173,7 +174,7 @@ func TestInitNoGit(t *testing.T) {
 	err = huskyLib.Init()
 	if err == nil {
 		t.Error(nilErrorMsg)
-	} else if err.Error() != "git not initialized" {
+	} else if !strings.HasPrefix(err.Error(), "this does not seem to be a git repository") {
 		t.Error(err)
 	}
 
@@ -207,7 +208,7 @@ func TestInitHuskyExists(t *testing.T) {
 
 	if err := huskyLib.Init(); err == nil {
 		t.Error(nilErrorMsg)
-	} else if err.Error() != ".husky already exist" {
+	} else if !strings.Contains(err.Error(), ".husky already exist") {
 		t.Error(err)
 	}
 }
@@ -268,7 +269,7 @@ func TestInstallNoGit(t *testing.T) {
 	err = huskyLib.Install()
 	if err == nil {
 		t.Error(nilErrorMsg)
-	} else if err.Error() != "git not initialized" {
+	} else if !strings.HasPrefix(err.Error(), "this does not seem to be a git repository") {
 		t.Error(err)
 	}
 
@@ -325,7 +326,7 @@ func TestInstallNoHuskyHooks(t *testing.T) {
 
 	if err := huskyLib.Install(); err == nil {
 		t.Error(nilErrorMsg)
-	} else if err.Error() != "no hooks found" {
+	} else if !strings.Contains(err.Error(), "no hooks found in ") {
 		t.Error(err)
 	}
 }

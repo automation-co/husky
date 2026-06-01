@@ -20,11 +20,13 @@ echo 'woof'
 		cmdStr := args[1]
 
 		if err := lib.Add(hook, cmdStr); err != nil {
-			panic(err)
+			exitOnError(err)
+			return
 		}
 
 		if err := lib.Install(); err != nil {
-			panic(err)
+			exitOnError(err)
+			return
 		}
 	},
 }

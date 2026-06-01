@@ -16,7 +16,8 @@ https://github.com/automation-co/husky
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := lib.Init(); err != nil {
-			panic(err)
+			exitOnError(err)
+			return
 		}
 	},
 }

@@ -7,75 +7,64 @@ import (
 	"path/filepath"
 )
 
-// Install command will iterate the files from .husky/hooks create the hardlinks into .git/hooks and chmod to 0755 permission.
-// The function intend to fail in case .git or .husky directory doesn't exist.
+// Install iterates over the files in .husky/hooks, creates hardlinks into git's
+// hooks directory, and chmods them to 0755. Fails if the current directory
+// is not inside a git working tree or if .husky is not initialized.
 func Install() error {
 	fmt.Println("Installing hooks")
 
-	// check if .git exists
-	if isExists, err := gitExists(); err == nil && !isExists {
-		return errors.New("git not initialized")
-	} else if err != nil {
-		return err
-	}
-
-	// check if .husky exists
-	if isExists, err := huskyExists(); err == nil && !isExists {
-		return errors.New(".husky not initialized")
-	} else if err != nil {
-		return err
-	}
-
-	gitHooksDir, huskyHooksDir := getGitHooksDir(true), getHuskyHooksDir(true)
-	// check if .husky/hooks exists
-	_, err := os.Stat(huskyHooksDir)
-	if os.IsNotExist(err) {
-		return errors.New("no hooks found")
-	}
-
-	// delete all files in .git/hooks
-	if err := os.RemoveAll(gitHooksDir); err != nil {
-		return err
-	}
-
-	// create .git/hooks
-	if err := os.Mkdir(gitHooksDir, 0755); err != nil {
-		return err
-	}
-
-	// copy all files in .husky/hooks to .git/hooks
-	var hooks []string
-	err = filepath.Walk(huskyHooksDir,
-		func(path string, info os.FileInfo, err error) error {
-			hooks = append(hooks, path)
-			return nil
-		})
+	worktreeRoot, err := renderWorktreeRoot()
 	if err != nil {
 		return err
 	}
-	for _, hook := range hooks {
 
-		// skip .husky/hooks
-		if hook == huskyHooksDir {
+	huskyDir := renderHuskyDir(worktreeRoot)
+	if _, err := os.Stat(huskyDir); os.IsNotExist(err) {
+		return errors.New(".husky not initialized")
+	} else if err != nil {
+		return fmt.Errorf("error when checking if %s already exists: %v", huskyDir, err)
+	}
+
+	huskyHooks := renderHuskyHooksDir(worktreeRoot)
+	if _, err := os.Stat(huskyHooks); os.IsNotExist(err) {
+		return fmt.Errorf("no hooks found in %s, use \"husky add\" to create some hooks first", huskyHooks)
+	} else if err != nil {
+		return fmt.Errorf("error when checking if %s already exists: %v", huskyHooks, err)
+	}
+
+	gitHooks, cmd, err := renderGitHooksDir(worktreeRoot)
+	if err != nil {
+		return fmt.Errorf("error when executing \"%v\" to find .git/hooks: %v", cmd, err)
+	}
+
+	fmt.Printf("deleting %s now\n", gitHooks)
+	if err := os.RemoveAll(gitHooks); err != nil {
+		return err
+	}
+	fmt.Printf("re-creating %s\n", gitHooks)
+	if err := os.MkdirAll(gitHooks, 0755); err != nil {
+		return err
+	}
+
+	entries, err := os.ReadDir(huskyHooks)
+	if err != nil {
+		return fmt.Errorf("error when listing the directory %s: %v", huskyHooks, err)
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
 			continue
 		}
-
-		fmt.Println(hook)
-
-		// copy file to .git/hooks
-		err = os.Link(hook, filepath.Join(gitHooksDir, filepath.Base(hook)))
-		if err != nil {
-			return err
+		src := filepath.Join(huskyHooks, entry.Name())
+		dst := filepath.Join(gitHooks, entry.Name())
+		if err := os.Link(src, dst); err != nil {
+			return fmt.Errorf("error when hard-linking from %s to %s: %v", src, dst, err)
 		}
-
-		// make file executable
-		err = os.Chmod(filepath.Join(gitHooksDir, filepath.Base(hook)), 0755)
-		if err != nil {
-			return err
+		if err := os.Chmod(dst, 0755); err != nil {
+			return fmt.Errorf("error making %s executable: %v", dst, err)
 		}
-
+		fmt.Printf("hard-link for %s -> %s has been created\n", src, dst)
 	}
-	fmt.Println("Hooks installed")
 
+	fmt.Println("All hooks installed successfully")
 	return nil
 }

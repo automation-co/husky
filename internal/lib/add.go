@@ -1,61 +1,54 @@
 package lib
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
+	"strings"
 )
 
-// Add command will create the file from hook value into .husky/hooks directory. The cmd appended to shebang string and
-// written in the file .husky/hooks/<hook>. The function intend to fail if the git hook name is invalid.
+// Add creates a hook file in .husky/hooks under the current worktree.
+// The cmd argument is prefixed with a #!/bin/sh shebang and written to
+// .husky/hooks/<hook>. Fails if the hook name is invalid, the current
+// directory is not inside a git working tree, or .husky is not initialized.
 func Add(hook string, cmd string) error {
-	// validate hooks
 	if !isValidHook(hook) {
-		return errors.New("invalid hook name")
+		return fmt.Errorf("invalid hook name %s, valid hooks are: %v", hook, strings.Join(validHooks, ", "))
 	}
 
-	// check if .git exists
-	if isExists, err := gitExists(); err == nil && !isExists {
-		return errors.New("git not initialized")
-	} else if err != nil {
-		return err
-	}
-
-	// check if .husky exists
-	if isExists, err := huskyExists(); err == nil && !isExists {
-		return errors.New(".husky not initialized")
-	} else if err != nil {
-		return err
-	}
-
-	// check if .husky/hooks exists
-	_, err := os.Stat(getHuskyHooksDir(true))
-	fmt.Println(err)
-	if os.IsNotExist(err) {
-		fmt.Println("no pre-existing hooks found")
-
-		// create .husky/hooks
-		err = os.MkdirAll(getHuskyHooksDir(true), 0755)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("created .husky/hooks")
-	}
-
-	// create hook
-	file, err := os.Create(path.Join(getHuskyHooksDir(true), hook))
+	// check if .git exists and find the root directory of the current git worktree
+	worktreeRoot, err := renderWorktreeRoot()
 	if err != nil {
 		return err
 	}
 
+	// check if the .husky directory exists
+	huskyDir := renderHuskyDir(worktreeRoot)
+	if _, err := os.Stat(huskyDir); os.IsNotExist(err) {
+		return fmt.Errorf("the directory %s does not exist, run \"husky init\" and try again", huskyDir)
+	} else if err != nil {
+		return err
+	}
+
+	huskyHooksDir := renderHuskyHooksDir(worktreeRoot)
+	if _, err := os.Stat(huskyHooksDir); os.IsNotExist(err) {
+		fmt.Printf("no pre-existing hooks found, creating %s now\n", huskyHooksDir)
+		if err := os.MkdirAll(huskyHooksDir, 0755); err != nil {
+			return err
+		}
+		fmt.Printf("created %s\n", huskyHooksDir)
+	} else if err != nil {
+		return err
+	}
+
+	file, err := os.Create(filepath.Join(huskyHooksDir, hook))
+	if err != nil {
+		return err
+	}
 	//goland:noinspection GoUnhandledErrorResult
 	defer file.Close()
 
-	cmd = "#!/bin/sh\n" + cmd
-	_, err = file.WriteString(cmd)
-	if err != nil {
+	if _, err := file.WriteString("#!/bin/sh\n" + cmd); err != nil {
 		return err
 	}
 

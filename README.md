@@ -35,6 +35,11 @@ go install github.com/automation-co/husky@latest
 
 ### Getting Started
 
+*Warning:* All `husky` commands are *potentially destructive*, they will *delete* all files in
+`.git/hooks` and recreate them from `.husky/hooks`.
+If you already have custom hooks in `.git/hooks`, make sure to create a backup of the hooks before
+starting to use `husky`.
+
 You can initialise husky by `$ husky init`
 
 > Make sure you have git initialised

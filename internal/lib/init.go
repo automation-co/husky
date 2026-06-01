@@ -1,53 +1,46 @@
 package lib
 
 import (
-	"errors"
+	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 )
 
-// Init command will set up the .husky directory as sibling of .git directory if not exists install pre-commit hook by default
-// If .husky exists, it will remove all the files from .git/hooks directory and copy from .husky directory.
+// Init sets up the .husky/hooks directory under the current worktree if it
+// does not already exist, creates a default pre-commit hook, and then calls
+// Install() to link the hooks into git's hooks directory.
 func Init() error {
-	// check if .git exists
-	if isExists, err := gitExists(); err == nil && !isExists {
-		return errors.New("git not initialized")
-	} else if err != nil {
+	worktreeRoot, err := renderWorktreeRoot()
+	if err != nil {
 		return err
 	}
 
 	// check if .husky exists
-	if isExists, err := huskyExists(); err == nil && isExists {
-		return errors.New(".husky already exist")
-	} else if err != nil {
-		return err
+	huskyDir := renderHuskyDir(worktreeRoot)
+	if _, err = os.Stat(huskyDir); err == nil {
+		return fmt.Errorf("%s already exists", huskyDir)
+	} else if !os.IsNotExist(err) {
+		return fmt.Errorf("error when checking if %s already exists: %v", huskyDir, err)
 	}
 
-	// if not, create .husky/hooks
-	err := os.MkdirAll(getHuskyHooksDir(true), 0755)
+	// create .husky/hooks
+	huskyHooks := renderHuskyHooksDir(worktreeRoot)
+	fmt.Printf("creating the %s now\n", huskyHooks)
+	if err := os.MkdirAll(huskyHooks, 0755); err != nil {
+		return fmt.Errorf("error when creating %s: %v", huskyHooks, err)
+	}
+
+	preCommitHook := filepath.Join(huskyHooks, "pre-commit")
+	file, err := os.Create(preCommitHook)
 	if err != nil {
-		return err
+		return fmt.Errorf("error when creating %s: %v", preCommitHook, err)
 	}
-
-	// create default pre-commit hook
-	file, err := os.Create(path.Join(getHuskyHooksDir(true), "pre-commit"))
-	if err != nil {
-		return err
-	}
-
 	//goland:noinspection GoUnhandledErrorResult
 	defer file.Close()
 
-	_, err = file.WriteString(`#!/bin/sh`)
-	if err != nil {
-		return err
+	if _, err := file.WriteString("#!/bin/sh\n"); err != nil {
+		return fmt.Errorf("error when writing to %s: %v", preCommitHook, err)
 	}
 
-	// add hooks to .git/hooks
-	err = Install()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return Install()
 }
